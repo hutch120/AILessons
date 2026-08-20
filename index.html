@@ -43,6 +43,29 @@
       gap: 14px;
       z-index: 999;
     }
+    .guide-link {
+      position: fixed;
+      top: 18px;
+      right: 20px;
+      z-index: 1000;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 52px;
+      height: 52px;
+      background: rgba(255,255,255,0.12);
+      color: white;
+      text-decoration: none;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-radius: 50%;
+      font-size: 1.5rem;
+      backdrop-filter: blur(6px);
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .guide-link:hover {
+      background: rgba(255,255,255,0.22);
+      transform: translateY(-1px);
+    }
     .nav-btn {
       width: 42px; height: 42px;
       border-radius: 50%;
@@ -415,6 +438,8 @@
   </style>
 </head>
 <body>
+
+<a class="guide-link" href="guide.html" aria-label="Open lesson guide">📘</a>
 
 <div class="stage">
 
