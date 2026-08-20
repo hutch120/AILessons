@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>How to Get Smarter With AI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #000;
+    }
+
+    /* ─── STAGE ─────────────────────────────────────── */
+    .stage { position: fixed; inset: 0; }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 44px 60px 72px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s ease;
+    }
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ─── NAV ───────────────────────────────────────── */
+    .nav {
+      position: fixed;
+      bottom: 18px;
+      left: 0; right: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      z-index: 999;
+    }
+    .nav-btn {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.12);
+      color: white;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+      backdrop-filter: blur(6px);
+      line-height: 1;
+    }
+    .nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.28); }
+    .nav-btn:disabled { opacity: 0.25; cursor: default; }
+
+    .dots { display: flex; gap: 8px; align-items: center; }
+    .dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .dot.on { background: white; width: 26px; border-radius: 5px; }
+
+    /* ─── SHARED ────────────────────────────────────── */
+    .slide-h {
+      font-size: clamp(1.9rem, 3.8vw, 3.2rem);
+      font-weight: 900;
+      color: white;
+      text-align: center;
+      line-height: 1.1;
+      flex-shrink: 0;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       SLIDE 1 — TITLE
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    #s1 {
+      background: linear-gradient(135deg, #0d1b6e 0%, #1a0533 55%, #3b0764 100%);
+      flex-direction: row;
+      align-items: center;
+      gap: 52px;
+      justify-content: center;
+    }
+    .s1-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    .s1-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(167,139,250,0.18);
+      border: 1px solid rgba(167,139,250,0.4);
+      border-radius: 100px;
+      padding: 7px 18px;
+      font-size: clamp(0.8rem, 1.3vw, 0.95rem);
+      font-weight: 700;
+      color: #c4b5fd;
+      letter-spacing: 0.05em;
+      width: fit-content;
+    }
+    .s1-h1 {
+      font-size: clamp(2.8rem, 5.5vw, 5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      color: white;
+    }
+    .s1-h1 .grad {
+      background: linear-gradient(90deg, #fbbf24, #f472b6, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .s1-sub {
+      font-size: clamp(1rem, 1.9vw, 1.4rem);
+      color: rgba(255,255,255,0.72);
+      line-height: 1.6;
+      max-width: 480px;
+    }
+    .s1-img {
+      flex-shrink: 0;
+      width: clamp(230px, 32vw, 400px);
+    }
+    .s1-img img {
+      width: 100%;
+      border-radius: 26px;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.55);
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       SLIDE 2 — THE QUESTION
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    #s2 {
+      background: linear-gradient(135deg, #0b1324 0%, #0f1f42 100%);
+      gap: 20px;
+      justify-content: center;
+    }
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      flex: 1;
+      min-height: 0;
+    }
+    .cmp {
+      border-radius: 22px;
+      padding: 26px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .cmp.bad  { background: rgba(239,68,68,0.1);  border: 2px solid rgba(239,68,68,0.45);  }
+    .cmp.good { background: rgba(34,197,94,0.1);   border: 2px solid rgba(34,197,94,0.45);  }
+    .cmp-tag {
+      font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+      font-weight: 800;
+    }
+    .cmp.bad  .cmp-tag { color: #f87171; }
+    .cmp.good .cmp-tag { color: #4ade80; }
+    .cmp-prompt {
+      background: rgba(0,0,0,0.35);
+      border-radius: 14px;
+      padding: 16px 18px;
+      font-size: clamp(0.95rem, 1.7vw, 1.2rem);
+      font-style: italic;
+      color: rgba(255,255,255,0.9);
+      line-height: 1.55;
+      flex: 1;
+    }
+    .cmp-result {
+      font-size: clamp(0.88rem, 1.5vw, 1.05rem);
+      color: rgba(255,255,255,0.6);
+      font-weight: 600;
+    }
+    .cmp-ai-reply {
+      background: rgba(0,0,0,0.3);
+      border-left: 3px solid rgba(239,68,68,0.6);
+      border-radius: 0 10px 10px 0;
+      padding: 10px 14px;
+      font-size: clamp(0.78rem, 1.3vw, 0.92rem);
+      color: rgba(255,255,255,0.55);
+      font-style: italic;
+      line-height: 1.5;
+    }
+    .cmp-ai-reply span {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      font-style: normal;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(239,68,68,0.7);
+      margin-bottom: 5px;
+    }
+    .cmp-ai-reply.good {
+      border-left-color: rgba(34,197,94,0.6);
+    }
+    .cmp-ai-reply.good span {
+      color: rgba(34,197,94,0.8);
+    }
+    .golden {
+      background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(245,158,11,0.06));
+      border: 2px solid rgba(251,191,36,0.5);
+      border-radius: 16px;
+      padding: 16px 26px;
+      text-align: center;
+      font-size: clamp(0.95rem, 1.8vw, 1.25rem);
+      color: #fde68a;
+      flex-shrink: 0;
+    }
+    .golden b { color: #fbbf24; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       SLIDE 3 — POWER PROMPTS
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    #s3 {
+      background: linear-gradient(135deg, #1e1b4b 0%, #2d2a80 55%, #1e3a8a 100%);
+      gap: 16px;
+      justify-content: center;
+    }
+    .s3-sub {
+      text-align: center;
+      font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+      color: rgba(255,255,255,0.5);
+      margin-top: -4px;
+      flex-shrink: 0;
+    }
+    .trio {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      flex: 1;
+      min-height: 0;
+    }
+    .pp {
+      border-radius: 22px;
+      padding: 22px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .pp.gap-c  { background: rgba(59,130,246,0.16);  border: 2px solid rgba(59,130,246,0.55);  }
+    .pp.imp-c  { background: rgba(34,197,94,0.14);   border: 2px solid rgba(34,197,94,0.55);   }
+    .pp.quiz-c { background: rgba(245,158,11,0.14);  border: 2px solid rgba(245,158,11,0.55);  }
+    .pp-icon { font-size: clamp(1.8rem, 2.5vw, 2.5rem); line-height: 1; flex-shrink: 0; }
+    .pp-num {
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.6;
+    }
+    .pp.gap-c  .pp-num { color: #93c5fd; }
+    .pp.imp-c  .pp-num { color: #86efac; }
+    .pp.quiz-c .pp-num { color: #fde68a; }
+    .pp-name {
+      font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+      font-weight: 900; color: white;
+    }
+    .pp-what {
+      font-size: clamp(0.82rem, 1.3vw, 1rem);
+      color: rgba(255,255,255,0.58); font-style: italic;
+    }
+    .pp-box {
+      background: rgba(0,0,0,0.32);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-family: 'Courier New', monospace;
+      font-size: clamp(0.82rem, 1.3vw, 1rem);
+      color: rgba(255,255,255,0.9);
+      line-height: 1.6;
+      flex: 1;
+    }
+    .pp-warn {
+      background: rgba(255,255,255,0.07);
+      border-radius: 9px;
+      padding: 8px 12px;
+      font-size: clamp(0.76rem, 1.2vw, 0.9rem);
+      color: #fde68a;
+      flex-shrink: 0;
+    }
+    .pp-example {
+      border-top: 1px solid rgba(255,255,255,0.12);
+      padding-top: 10px;
+      font-size: clamp(0.78rem, 1.2vw, 0.88rem);
+      color: rgba(255,255,255,0.5);
+      font-style: italic;
+      line-height: 1.5;
+      flex-shrink: 0;
+    }
+    .pp-example b {
+      font-style: normal;
+      font-weight: 700;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 4px;
+      opacity: 0.7;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       SLIDE 4 — CHALLENGE
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    #s4 {
+      background: linear-gradient(135deg, #052e16 0%, #064e3b 55%, #0e5460 100%);
+      gap: 18px;
+      justify-content: center;
+    }
+    .ch-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      flex: 1;
+      min-height: 0;
+    }
+    .ch-card {
+      background: rgba(255,255,255,0.07);
+      border: 2px solid rgba(255,255,255,0.14);
+      border-radius: 22px;
+      padding: 20px 18px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .ch-pill {
+      display: inline-flex;
+      align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: clamp(0.72rem, 1.2vw, 0.85rem);
+      font-weight: 700;
+      color: rgba(255,255,255,0.8);
+      width: fit-content;
+    }
+    .ch-name {
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
+      font-weight: 900; color: white;
+    }
+    .ch-desc {
+      font-size: clamp(0.82rem, 1.35vw, 1rem);
+      color: rgba(255,255,255,0.7);
+      line-height: 1.55; flex: 1;
+    }
+    .ch-img-col {
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ch-img-col img {
+      width: 100%;
+      border-radius: 18px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+      object-fit: cover;
+      max-height: 100%;
+    }
+    .ch-tip {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 14px;
+      padding: 13px 22px;
+      text-align: center;
+      font-size: clamp(0.88rem, 1.5vw, 1.05rem);
+      color: rgba(255,255,255,0.75);
+      flex-shrink: 0;
+    }
+    .ch-tip b { color: #6ee7b7; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       SLIDE 5 — WRAP UP
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    #s5 {
+      background: linear-gradient(135deg, #3b0764 0%, #4c1d95 55%, #1e1b4b 100%);
+      gap: 18px;
+      justify-content: center;
+    }
+    .ta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      flex: 1; min-height: 0;
+    }
+    .ta {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 18px;
+      padding: 18px 20px;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .ta-i { font-size: clamp(1.5rem, 2.2vw, 2rem); flex-shrink: 0; line-height: 1; }
+    .ta-t {
+      font-size: clamp(0.95rem, 1.7vw, 1.2rem);
+      font-weight: 800; color: white; margin-bottom: 5px;
+    }
+    .ta-d {
+      font-size: clamp(0.8rem, 1.3vw, 0.95rem);
+      color: rgba(255,255,255,0.62); line-height: 1.5;
+    }
+    .big-quote {
+      background: linear-gradient(135deg, rgba(167,139,250,0.14), rgba(96,165,250,0.09));
+      border: 2px solid rgba(167,139,250,0.35);
+      border-radius: 18px;
+      padding: 16px 32px;
+      text-align: center;
+      font-size: clamp(0.95rem, 1.8vw, 1.25rem);
+      font-style: italic;
+      color: #e9d5ff;
+      line-height: 1.55;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ━━━ SLIDE 1 ━━━ -->
+  <div class="slide active" id="s1">
+    <div class="s1-left">
+      <span class="s1-badge">✨ Year 4 &nbsp;·&nbsp; AI Lesson</span>
+      <h1 class="s1-h1">How to Get<br><span class="grad">Smarter<br>With AI</span></h1>
+      <p class="s1-sub">Most people use AI the wrong way.<br>
+      Today you're going to learn how to use it in a way that actually makes <strong>you</strong> smarter.</p>
+    </div>
+    <div class="s1-img">
+      <img src="kids%20around%20laptop.png" alt="Kids learning together with AI"/>
+    </div>
+  </div>
+
+  <!-- ━━━ SLIDE 2 ━━━ -->
+  <div class="slide" id="s2">
+    <h2 class="slide-h">The Question Changes Everything</h2>
+    <div class="compare-row">
+      <div class="cmp bad">
+        <div class="cmp-tag">&#10060; Lazy Prompt</div>
+        <div class="cmp-prompt">"Write me a short paragraph about my weekend."</div>
+        <div class="cmp-ai-reply"><span>AI writes for you:</span>"This weekend was a blast! I went to the park with my friends and we ran around for hours. Sunday was all about relaxing — I watched a movie and fell asleep on the couch."</div>
+        <div class="cmp-result">AI does all the work. You learn nothing.</div>
+      </div>
+      <div class="cmp good">
+        <div class="cmp-tag">&#9989; Smart Prompt</div>
+        <div class="cmp-prompt">"Here's my paragraph… Can you give me tips to improve it without rewriting it for me?"</div>
+        <div class="cmp-ai-reply good"><span>AI gives you tips:</span>"Add feelings — instead of 'fun,' tell us how it felt. Add one detail about the zoo: what did you see? Pick just one of these and try adding it!"</div>
+        <div class="cmp-result">You stay in control. AI becomes your editor. You get smarter.</div>
+      </div>
+    </div>
+    <div class="golden">
+      <b>Golden Rule:</b> Show your work first — then tell AI what kind of help you want.
+    </div>
+  </div>
+
+  <!-- ━━━ SLIDE 3 ━━━ -->
+  <div class="slide" id="s3">
+    <h2 class="slide-h">&#9889; Power Prompts</h2>
+    <p class="s3-sub">These work on any AI — ChatGPT, Gemini, Copilot, or Claude</p>
+    <div class="trio">
+
+      <div class="pp gap-c">
+        <span class="pp-icon">&#128269;</span>
+        <span class="pp-num">Prompt 1</span>
+        <div class="pp-name">Gap Finder</div>
+        <div class="pp-what">Find out what you're missing</div>
+        <div class="pp-box">"I think [X] because [reason]. What am I missing or getting wrong?"</div>
+      </div>
+
+      <div class="pp imp-c">
+        <span class="pp-icon">&#9999;&#65039;</span>
+        <span class="pp-num">Prompt 2</span>
+        <div class="pp-name">Improver</div>
+        <div class="pp-what">Get better at something you made</div>
+        <div class="pp-box">"Here's my work: [paste it]. How could I improve it? Don't rewrite it — just tell me what to change and why."</div>
+        <div class="pp-warn">&#9888;&#65039; Always say "don't rewrite it" — or AI will just do it for you!</div>
+      </div>
+
+      <div class="pp quiz-c">
+        <span class="pp-icon">&#129504;</span>
+        <span class="pp-num">Prompt 3</span>
+        <div class="pp-name">Quiz Master</div>
+        <div class="pp-what">Check you really understood it</div>
+        <div class="pp-box">"Explain [topic] simply. Then give me 3 questions to test if I understood it."</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ━━━ SLIDE 4 ━━━ -->
+  <div class="slide" id="s4">
+    <h2 class="slide-h">Your Turn! &#128640;</h2>
+    <div class="ch-row">
+
+      <div class="ch-card">
+        <div class="ch-pill">&#128269; Round 1 &nbsp;·&nbsp; 3 min</div>
+        <div class="ch-name">Gap Finder</div>
+        <div class="ch-desc">Write one sentence about something you're learning. Use the Gap Finder prompt. What did AI say was missing?</div>
+        <div class="pp-box">"I think [X] because [reason]. What am I missing or getting wrong?"</div>
+        <div class="pp-example"><b>e.g.</b>"I think dingoes are just wild dogs that escaped into the bush. What am I missing or getting wrong?"</div>
+      </div>
+
+      <div class="ch-card">
+        <div class="ch-pill">&#9999;&#65039; Round 2 &nbsp;·&nbsp; 3 min</div>
+        <div class="ch-name">Improver</div>
+        <div class="ch-desc">Write a sentence about anything you like. Use the Improver prompt. Pick one suggestion and actually fix it.</div>
+        <div class="pp-box">"Here's my work: [paste it]. How could I improve it? Don't rewrite it — just tell me what to change and why."</div>
+        <div class="pp-example"><b>e.g.</b>"Here's my paragraph: 'Dogs are great pets. They like to play.' How could I improve it? Don't rewrite it — just tell me what to change and why."</div>
+      </div>
+
+      <div class="ch-card">
+        <div class="ch-pill">&#129504; Round 3 &nbsp;·&nbsp; 3 min</div>
+        <div class="ch-name">Quiz Master</div>
+        <div class="ch-desc">Pick something you want to understand better. Use Quiz Master. Try to answer the 3 questions without looking anything up!</div>
+        <div class="pp-box">"Explain [topic] simply. Then give me 3 questions to test if I understood it."</div>
+        <div class="pp-example"><b>e.g.</b>"Explain how dingoes are different from pet dogs simply. Then give me 3 questions to test if I understood it."</div>
+      </div>
+
+    </div>
+    <div class="ch-tip">Finished early? <b>Pick any prompt and try a different topic!</b></div>
+  </div>
+
+  <!-- ━━━ SLIDE 5 ━━━ -->
+  <div class="slide" id="s5">
+    <h2 class="slide-h">What You've Learned Today &#127775;</h2>
+    <div class="ta-grid">
+      <div class="ta">
+        <span class="ta-i">&#128161;</span>
+        <div>
+          <div class="ta-t">Show Your Thinking First</div>
+          <div class="ta-d">Don't ask for the answer — show your work and ask where you went wrong.</div>
+        </div>
+      </div>
+      <div class="ta">
+        <span class="ta-i">&#9889;</span>
+        <div>
+          <div class="ta-t">Use the Power Prompts</div>
+          <div class="ta-d">Gap Finder, Improver, and Quiz Master. Always add "don't rewrite it."</div>
+        </div>
+      </div>
+      <div class="ta">
+        <span class="ta-i">&#129320;</span>
+        <div>
+          <div class="ta-t">Watch Out for Hallucinations</div>
+          <div class="ta-d">AI can make up facts and sound very sure. Always check against another source.</div>
+        </div>
+      </div>
+      <div class="ta">
+        <span class="ta-i">&#129504;</span>
+        <div>
+          <div class="ta-t">Think for Yourself</div>
+          <div class="ta-d">AI can have hidden unfair assumptions. Your thinking always matters.</div>
+        </div>
+      </div>
+    </div>
+    <div class="big-quote">
+      "The smartest people aren't the ones who know the most — they're the ones best at finding their own gaps."
+    </div>
+  </div>
+
+</div>
+
+<!-- Navigation -->
+<nav class="nav">
+  <button class="nav-btn" id="prev-btn" onclick="go(-1)" disabled>&#8249;</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-btn" id="next-btn" onclick="go(1)">&#8250;</button>
+</nav>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let cur = 0;
+
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' on' : '');
+    d.addEventListener('click', () => jump(i));
+    dotsEl.appendChild(d);
+  });
+
+  function jump(n) {
+    if (n === cur || n < 0 || n >= slides.length) return;
+    slides[cur].classList.remove('active');
+    cur = n;
+    slides[cur].classList.add('active');
+    document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === cur));
+    document.getElementById('prev-btn').disabled = cur === 0;
+    document.getElementById('next-btn').disabled = cur === slides.length - 1;
+    history.replaceState(null, '', '#' + (cur + 1));
+  }
+
+  // restore slide from hash on load
+  const hashSlide = parseInt(location.hash.slice(1)) - 1;
+  if (hashSlide >= 0 && hashSlide < slides.length) {
+    slides[0].classList.remove('active');
+    cur = hashSlide;
+    slides[cur].classList.add('active');
+    document.querySelectorAll('.dot')[cur].classList.add('on');
+    document.getElementById('prev-btn').disabled = cur === 0;
+    document.getElementById('next-btn').disabled = cur === slides.length - 1;
+  }
+
+  function go(d) { jump(cur + d); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') go(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp') go(-1);
+  });
+</script>
+
+</body>
+</html>
